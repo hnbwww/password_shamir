@@ -3,7 +3,13 @@ Shamir 密码分片和助记词生成
 
 Shamir加密
 
-# 功能
+# 功能/使用方法
+
+下载 用浏览器打开index.html。即可使用
+
+![image](https://github.com/user-attachments/assets/114090c7-17d7-4405-8e79-6259f83689a4)
+
+
 
 # 生成助记词
 

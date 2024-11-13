@@ -45,6 +45,8 @@ Shamir加密
 
 集齐N份密文 即可解密。
 
+![image](https://github.com/user-attachments/assets/d5807abf-a216-4823-b447-40c0bde4627c)
+
 
 # 安全提示：
 

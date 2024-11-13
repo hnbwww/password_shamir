@@ -5,6 +5,12 @@ Shamir加密
 
 # 功能/使用方法
 
+# 在线使用
+
+点击打开 https://hnbwww.github.io/password_shamir/
+
+# 下载代码
+
 下载 用浏览器打开index.html。即可使用
 
 ![image](https://github.com/user-attachments/assets/114090c7-17d7-4405-8e79-6259f83689a4)

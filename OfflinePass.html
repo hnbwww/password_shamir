@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Offline BTC & ETH Generator</title>
+  <style>
+    body { font-family: sans-serif; margin: 1em; }
+    input[type="text"] { width: 90%; }
+    .label { display: inline-block; width: 200px; vertical-align: top; }
+    .btn { margin: 0.5em 0; }
+    #result { margin-top: 1em; padding: 1em; background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <h1>Offline BTC & ETH Generator (Single HTML)</h1>
+  <p>
+    本示例已打包 bip39, bip32, bitcoinjs-lib, ethereumjs-util 到同一文件。<br/>
+    在此页面即可离线生成 BTC 与 ETH 地址，或从私钥得出 ETH 地址。
+  </p>
+  
+  <!-- 
+    方式1：直接在此处内联 bundle.js 的内容
+    方式2：<script src="./bundle.js"></script> 
+           然后将 index.html + bundle.js 一起分发
+    下面为了示例，演示方式2更简洁：
+  -->
+  <script src="./dist/bundle.js"></script>
+
+  <hr/>
+  <section>
+    <h2>1) 从 助记词 生成 BTC/ETH 地址</h2>
+    <button class="btn" onclick="ONgenerateRandomMnemonic()">随机生成助记词 (12词)</button><br/>
+    <label class="label">Mnemonic(助记词):</label>
+    <input type="text" id="mnemonic" /><br/>
+    <button class="btn" onclick="generateFromMnemonic()">Generate</button>
+
+  <button onclick="onGenerateMultipleBtc()">Generate 10 BTC Addresses</button>
+
+		
+  <button onclick="onGenerateEthMultiple()">Generate 10 ETH Addresses</button>
+
+
+	
+  </section>
+
+  <hr/>
+  <section>
+    <h2>2) 从 私钥 生成 ETH 地址</h2>
+    <label class="label">ETH PrivateKey (hex):</label>
+    <input type="text" id="ethPrivKey" placeholder="不含0x也可" /><br/>
+    <button class="btn" onclick="generateEthFromPrivKey()">Get ETH Address</button>
+  </section>
+
+  <div id="result"></div>
+
+
+ <h1>3) 从 WIF 生成 BTC 地址 Generate BTC Address from WIF</h1>
+
+  <label for="btcPrivKeyWif">BTC PrivateKey (WIF):</label><br/>
+  <input type="text" id="btcPrivKeyWif" size="66" placeholder="starts with a 'K' or 'L'" /><br/><br/>
+  
+  <button onclick="onGenerateBtcAddress()">Generate BTC Address</button>
+
+  <hr/>
+  <div id="resultBtcAddress"></div>
+  
+  
+
+ <h1>4) Generate BTC Address from PrivateKey (Hex)</h1>
+
+  <label for="btcPrivKeyHex">BTC PrivateKey (hex):</label><br/>
+  <input type="text" id="btcPrivKeyHex" size="66" placeholder="e.g. a3f1... (64 hex chars)" /><br/><br/>
+  
+  <button onclick="onGenerateBtcAddress2()">Generate BTC Address</button>
+
+  <hr/>
+  <div id="resultBtcAddress2"></div>
+  
+  
+  <script>
+  
+
+    function onGenerateMultipleBtc() {
+      const mnemonic = document.getElementById("mnemonic").value.trim();
+      if (!mnemonic) {
+        alert("Please input a BIP-39 mnemonic!");
+        return;
+      }
+
+      // 生成10个地址
+      const result = window.generateBtcAddresses(mnemonic, 10);
+
+      const resultDiv = document.getElementById("result");
+      let html = "<h3>BTC Addresses (m/44'/0'/0'/0/i)</h3>";
+      for (const item of result) {
+        html += `
+          <div>
+            <strong>Index ${item.index}</strong><br/>
+            WIF: ${item.wif}<br/>
+            Address: ${item.address}
+          </div>
+          <hr/>
+        `;
+      }
+      resultDiv.innerHTML = html;
+    }
+
+	
+  
+
+  function onGenerateEthMultiple() {
+    const mnemonic = document.getElementById("mnemonic").value.trim();
+    if (!mnemonic) {
+      alert("Please input a BIP-39 mnemonic!");
+      return;
+    }
+
+    // 例如一次性生成10个地址
+    const result = window.generateEthAddresses(mnemonic, 10);
+    console.log("Generated 10 ETH addresses:", result);
+
+    // 也可在页面上显示
+    const resultDiv = document.getElementById("result");
+    let html = "<h3>ETH Addresses (m/44'/60'/0'/0/i)</h3>";
+    for (const item of result) {
+      html += `
+        <p>
+          <strong>Index ${item.index}:</strong><br/>
+          PrivateKey: ${item.privateKeyHex}<br/>
+          Address: ${item.address}
+        </p>
+      `;
+    }
+    resultDiv.innerHTML = html;
+  }
+
+  
+
+    function onGenerateBtcAddress() {
+      const privKeyHex = document.getElementById('btcPrivKeyWif').value.trim();
+      if (!privKeyHex) {
+        alert("Please input a BTC private key in hex format!");
+        return;
+      }
+      let resultDiv = document.getElementById('resultBtcAddress');
+      resultDiv.innerHTML = ""; // 清空
+
+      try {
+        // 调用我们在 main.js 里定义并挂到 window 的函数
+        const { wif, address } = window.generateBtcFromWIF(privKeyHex);
+
+        // 显示生成结果
+        resultDiv.innerHTML = `
+          <p><strong>WIF:</strong> ${wif}</p>
+          <p><strong>BTC Address:</strong> ${address}</p>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      }
+    } 
+	
+ 
+    function onGenerateBtcAddress2() {
+      const privKeyHex = document.getElementById('btcPrivKeyHex').value.trim();
+      if (!privKeyHex) {
+        alert("Please input a BTC private key in hex format!");
+        return;
+      }
+      let resultDiv = document.getElementById('resultBtcAddress2');
+      resultDiv.innerHTML = ""; // 清空
+
+      try {
+        // 调用我们在 main.js 里定义并挂到 window 的函数
+        const { wif, address } = window.generateBtcFromPrivateKey(privKeyHex);
+
+        // 显示生成结果
+        resultDiv.innerHTML = `
+          <p><strong>WIF:</strong> ${wif}</p>
+          <p><strong>BTC Address:</strong> ${address}</p>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      }
+    } 
+ 
+  
+    function ONgenerateRandomMnemonic() {
+      const mnemonic = window.generateRandomMnemonic(128);
+      document.getElementById('mnemonic').value = mnemonic;
+    }
+
+    function generateFromMnemonic() {
+      const mnemonic = document.getElementById('mnemonic').value.trim();
+      if (!mnemonic) {
+        alert("请先输入或生成助记词");
+        return;
+      }
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "";
+
+      try {
+        const btc = window.generateBtcFromMnemonic(mnemonic);
+        const eth = window.generateEthFromMnemonic(mnemonic);
+
+        resultDiv.innerHTML += 
+          `<h3>BTC (m/44'/0'/0'/0/0)</h3>
+           <p><b>BTC Address:</b> ${btc.address}</p>
+           <p><b>Private Key (WIF):</b> ${btc.wif}</p>
+           <hr/>
+           <h3>ETH (m/44'/60'/0'/0/0)</h3>
+           <p><b>ETH Address:</b> ${eth.address}</p>
+           <p><b>Private Key (hex):</b> ${eth.privateKeyHex}</p>`;
+      } catch(err) {
+        resultDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      }
+    }
+
+    function generateEthFromPrivKey() {
+      const pkHex = document.getElementById('ethPrivKey').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "";
+      try {
+        const addr = window.generateEthFromPrivateKey(pkHex);
+        resultDiv.innerHTML = `
+          <h3>ETH Address from PrivateKey</h3>
+          <p><b>ETH Address:</b> ${addr}</p>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>

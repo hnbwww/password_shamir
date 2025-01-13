@@ -18,6 +18,10 @@
             </div>
             <button class="btn btn-success w-100" onclick="useCustomMnemonic()">加密指定内容或生成随机助记词</button>
             <p class="mt-3">加密内容：<strong id="mnemonic"></strong></p>
+			<p class="mt-3">对应BTC地址：<strong id="bitcoin_address"></strong></p>
+			<p class="mt-3">对应ETH地址：<strong id="ETH_address"></strong></p>																			   
+																		   
+   
         </div>
 
         <div class="card my-4 p-4">
@@ -54,7 +58,7 @@
  </strong></p>
         </div>
     </div>
-
+  <script src="./dist/bundle.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/buffer.min.js"></script>
     <script src="js/bip39.min.js"></script>
@@ -278,10 +282,66 @@ const updateQRcode = function(){
 
     let currentMnemonic = ""; // 保存当前生成的助记词
 
+
+
+// 根据助记词生成钱包地址
+const getWalletAddress = (mnemonic, network = window.Libs.bitcoin.networks.bitcoin) => {
+  // 将助记词转化为种子
+  const seed = window.Libs.bip39.mnemonicToSeedSync(mnemonic);
+
+  // 使用 BIP32 生成根密钥
+  const root = window.Libs.bip32.fromSeed(seed, network);
+
+  // 使用 BIP44 标准路径 (m/44'/0'/0'/0/0)
+  const path = "m/44'/0'/0'/0/0";
+  const child = root.derivePath(path);
+
+  // 从子密钥生成钱包地址
+  const { address } = window.Libs.bitcoin.payments.p2pkh({
+    pubkey: child.publicKey,
+    network,
+  });
+
+  return address;
+};
+
+
+const generateEthFromMnemonic = (mnemonic) =>{
+console.log('generateEthFromMnemonic')
+ 
+  const seed = window.Libs.bip39.mnemonicToSeedSync(mnemonic.trim());
+  const root = window.Libs.bip32.fromSeed(seed);
+
+  // m/44'/60'/0'/0/0
+  const child = root.derivePath("m/44'/60'/0'/0/0");
+  const privateKey = child.privateKey; // Buffer(32字节)
+  const privateKeyHex = privateKey.toString('hex');
+  
+  console.log(privateKeyHex)
+
+  // 老版 bitcoinjs-lib => ECPair
+  const keyPair = window.Libs.bitcoin.ECPair.fromPrivateKey(privateKey, { compressed: false });
+  const uncompressedPubKey = keyPair.publicKey.slice(1); // 去掉 0x04 前缀
+  const ethAddrBuf = window.Libs.ethUtil.publicToAddress(uncompressedPubKey, true);
+  const address = window.Libs.ethUtil.toChecksumAddress('0x' + ethAddrBuf.toString('hex'));
+	console.log(address)
+  return address ;
+};
+
+
+
+
     // 生成助记词
     window.generateMnemonic = function() {
         currentMnemonic = bip39.generateMnemonic();
         document.getElementById("mnemonic").innerText = currentMnemonic;
+		
+        document.getElementById("bitcoin_address").innerText = getWalletAddress(currentMnemonic);
+ 
+		
+        document.getElementById("ETH_address").innerText = generateEthFromMnemonic(currentMnemonic);
+		
+		
     }
 
     // 使用指定助记词或生成随机助记词
@@ -304,6 +364,12 @@ const updateQRcode = function(){
         }
         document.getElementById("mnemonic").innerText = currentMnemonic;
 		
+        document.getElementById("bitcoin_address").innerText = getWalletAddress(currentMnemonic);
+        document.getElementById("ETH_address").innerText = generateEthFromMnemonic(currentMnemonic);
+																										 
+																									
+  
+  
 		//模拟输入
 		simulateInput(document.getElementById("secretInput"),currentMnemonic)
 		

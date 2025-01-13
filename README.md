@@ -7,6 +7,11 @@ Shamir加密
 
 https://hnbwww.github.io/password_shamir/OfflinePass.html
 
+更多钱包生成工具  打开后断网 使用
+
+https://www.bitaddress.org/
+
+
 # 功能/使用方法
 
 # 在线使用

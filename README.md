@@ -3,6 +3,10 @@ Shamir 密码分片和助记词生成
 
 Shamir加密
 
+离线生成助记词 私钥 私钥获取地址 注意断网使用 或者下载到本地断网使用
+
+https://hnbwww.github.io/password_shamir/OfflinePass.html
+
 # 功能/使用方法
 
 # 在线使用

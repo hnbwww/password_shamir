@@ -32,7 +32,7 @@
       <button class="btn btn-primary mb-2" onclick="ONgenerateRandomMnemonic()">随机生成助记词(12词)</button><br/>
       <label class="form-label" for="mnemonic">Mnemonic (助记词):</label>
       <input type="text" id="mnemonic" class="form-control" placeholder="输入或自动生成助记词..."/>
-      <button class="btn btn-success mt-2" onclick="generateFromMnemonic()">Generate</button>
+      <button class="btn btn-success mt-2" onclick="generateFromMnemonic()">生成地址</button>
 
       <div id="result" class="mt-3 p-2 border bg-light"></div>
     </div>
@@ -106,6 +106,7 @@
     function ONgenerateRandomMnemonic() {
       const mnemonic = window.generateRandomMnemonic(128);
       document.getElementById('mnemonic').value = mnemonic;
+      generateFromMnemonic()
     }
 
     function generateFromMnemonic() {
